@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lingua50+ — Глобальна Платформа Вивчення 50+ Мов</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --secondary: #9333ea;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 20px;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 80px;
+    }
+
+    /* Утиліти та кнопки */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 14px;
+      border: none;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.94;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .btn-amber {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-outline {
+      background: #fff;
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Спливаюче повідомлення (Toast) */
+    #toast {
+      position: fixed;
+      top: 84px;
+      right: 20px;
+      z-index: 9999;
+      background: #0f172a;
+      color: #fff;
+      padding: 14px 18px;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+      max-width: 340px;
+      display: none;
+      animation: slideIn 0.3s ease;
+      border-left: 5px solid var(--accent);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Модальне вікно Онбордингу та Уроку */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .modal-card {
+      background: #fff;
+      border-radius: 26px;
+      max-width: 820px;
+      width: 100%;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      animation: popUp 0.25s ease;
+    }
+
+    @keyframes popUp {
+      from { transform: scale(0.94); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .onboarding-header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed, #db2777);
+      color: #fff;
+      padding: 26px 28px;
+    }
+
+    .onboarding-body {
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .box-panel {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .label-title {
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #1e293b;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+    }
+
+    .age-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: #e0e7ff;
+      color: #3730a3;
+      font-weight: 800;
+    }
+
+    /* Сітка вибору мови в онбордингу */
+    .lang-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+      gap: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+      margin-top: 10px;
+      padding-right: 4px;
+    }
+
+    .lang-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 10px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .lang-chip.active {
+      border-color: var(--primary);
+      background: #eef2ff;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.15);
+    }
+
+    .lang-chip .flag {
+      font-size: 20px;
+    }
+
+    .lang-chip .name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.2;
+    }
+
+    .lang-chip .native {
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* Вибір плану та часу */
+    .option-cards-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .option-cards-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .select-card {
+      border: 2px solid var(--border);
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .select-card.active {
+      border-color: var(--primary);
+      background: #eef2ff;
+    }
+
+    .select-card.amber-active {
+      border-color: #f59e0b;
+      background: #fffbeb;
+    }
+
+    /* Верхня панель (Header) */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 12px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      font-weight: 900;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stats-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .stat-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 800;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+    }
+
+    .stat-pill.lei {
+      background: #fffbeb;
+      border-color: #fcd34d;
+      color: #b45309;
+      cursor: pointer;
+    }
+
+    .stat-pill.vip {
+      background: #ecfdf5;
+      border-color: #6ee7b7;
+      color: #047857;
+    }
+
+    .xp-bar-wrap {
+      width: 80px;
+      height: 7px;
+      background: #cbd5e1;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .xp-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      width: 20%;
+      transition: width 0.4s ease;
+    }
+
+    /* Навігаційні вкладки */
+    .nav-tabs {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 8px 18px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .tab-btn {
+      padding: 9px 16px;
+      border-radius: 12px;
+      border: none;
+      background: transparent;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      background: #f1f5f9;
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    }
+
+    /* Основний контейнер */
+    main {
+      max-width: 1200px;
+      width: 100%;
+      margin: 22px auto;
+      padding: 0 18px;
+      flex: 1;
+    }
+
+    .tab-section {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .tab-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Банер профілю на головній вкладці */
+    .hero-card {
+      background: linear-gradient(135deg, #4338ca, #7e22ce, #be185d);
+      color: #fff;
+      border-radius: 26px;
+      padding: 26px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .hero-badge {
+      background: rgba(255, 255, 255, 0.18);
+      padding: 6px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .phrase-box {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 18px;
+      padding: 16px 20px;
+      min-width: 260px;
+    }
+
+    /* Картки рівнів та уроків */
+    .level-block {
+      background: var(--surface);
+      border-radius: 24px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .level-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .level-tag {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .lessons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .lesson-card {
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+
+    .lesson-card:hover {
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .lesson-card.done {
+      border-color: #6ee7b7;
+      background: #ecfdf5;
+    }
+
+    /* Тести */
+    .quiz-card {
+      max-width: 740px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 24px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .quiz-option {
+      width: 100%;
+      text-align: left;
+      padding: 15px 18px;
+      border-radius: 16px;
+      border: 2px solid var(--border);
+      background: #f8fafc;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: all 0.15s;
+    }
+
+    .quiz-option:hover:not(:disabled) {
+      border-color: var(--primary);
+      background: #eef2ff;
+    }
+
+    .quiz-option.correct {
+      border-color: var(--success);
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .quiz-option.wrong {
+      border-color: var(--danger);
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* AI Чат */
+    .ai-container {
+      max-width: 860px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 68vh;
+      min-height: 460px;
+    }
+
+    .ai-top {
+      background: linear-gradient(135deg, #4f46e5, #9333ea);
+      color: #fff;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ai-quick-prompts {
+      padding: 10px 16px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .quick-chip {
+      padding: 6px 12px;
+      border-radius: 99px;
+      border: 1px solid #c7d2fe;
+      background: #fff;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .quick-chip:hover {
+      background: #eef2ff;
+    }
+
+    .ai-messages {
+      flex: 1;
+      padding: 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #f8fafc;
+    }
+
+    .msg {
+      max-width: 80%;
+      padding: 13px 16px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .msg.ai {
+      align-self: flex-start;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .ai-input-bar {
+      padding: 14px 16px;
+      background: #fff;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+    }
+
+    /* Магазин */
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .shop-card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 22px;
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    /* Рекламний банер внизу */
+    #ad-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 90;
+      background: #0f172a;
+      color: #fff;
+      padding: 12px 18px;
+      border-top: 2px solid #334155;
+      box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .ad-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Спливаюче сповіщення -->
+  <div id="toast">
+    <div id="toast-title" style="font-weight: 800; font-size: 14px;"></div>
+    <div id="toast-msg" style="font-size: 12px; color: #cbd5e1; margin-top: 3px;"></div>
+  </div>
+
+  <!-- МОДАЛЬНЕ ВІКНО НАЛАШТУВАННЯ ПРОФІЛЮ (ONBOARDING) -->
+  <div id="onboarding-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="onboarding-header">
+        <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0.9;">
+          🌍 Понад 52 мови світу • AI-Репетитор • Система нагород Леї
+        </div>
+        <h1 style="font-size: 28px; font-weight: 900; margin-top: 6px;">
+          Ласкаво просимо до <span style="color: #fde047;">Lingua50+</span>
+        </h1>
+        <p style="font-size: 14px; opacity: 0.92; margin-top: 4px;">
+          Налаштуй свій профіль, щоб система адаптувала навчання під твій вік, темп та ціль!
+        </p>
+      </div>
+
+      <div class="onboarding-body">
+        <!-- Крок 1 та 2: Нікнейм і Вік -->
+        <div class="form-grid">
+          <div class="box-panel">
+            <div class="label-title">1. Обери свій нікнейм ✨</div>
+            <input type="text" id="input-nickname" class="input-field" value="Поліглот_5+" placeholder="Введи свій нікнейм..." />
+          </div>
+
+          <div class="box-panel">
+            <div class="label-title">
+              <span>2. Вкажи свій вік 🎂</span>
+              <span id="age-group-badge" class="age-badge">14–17 років • Школяр</span>
+            </div>
+            <input type="number" id="input-age" class="input-field" value="16" min="5" max="99" oninput="updateAgePreview()" />
+            <p id="age-method-desc" style="font-size: 12px; color: #64748b; margin-top: 8px;">
+              Інтерактивний сленг, живі діалоги та візуал для школярів.
+            </p>
+          </div>
+        </div>
+
+        <!-- Крок 3: Вибір мови з 52 мов -->
+        <div class="box-panel">
+          <div class="label-title">
+            <span>3. Обери мову для вивчення (52 мови світу) 🌍</span>
+            <span id="selected-lang-preview" style="color: var(--primary); font-weight: 800;">🇪🇸 Іспанська</span>
+          </div>
+          <input type="text" id="lang-search-input" class="input-field" placeholder="🔍 Пошук мови (наприклад: Іспанська, Англійська, Японська...)" oninput="renderOnboardingLanguages()" />
+          <div id="onboarding-lang-grid" class="lang-picker-grid"></div>
+        </div>
+
+        <!-- Крок 4: План навчання -->
+        <div>
+          <div class="label-title">4. Обери план навчання 📚</div>
+          <div class="option-cards-3" id="plan-cards">
+            <div class="select-card" data-plan="easy" onclick="selectPlan('easy')">
+              <div style="font-weight: 900; color: #059669; font-size: 15px;">☕ Легкий</div>
+              <div style="font-size: 12px; font-weight: 700; color: #475569; margin: 4px 0;">15 хв/день • Базовий темп</div>
+              <div style="font-size: 12px; color: #64748b;">Спокійне вивчення слів та фраз без перевантаження.</div>
+            </div>
+            <div class="select-card active" data-plan="medium" onclick="selectPlan('medium')">
+              <div style="font-weight: 900; color: #4f46e5; font-size: 15px;">🚀 Середній</div>
+              <div style="font-size: 12px; font-weight: 700; color: #475569; margin: 4px 0;">30 хв/день • Збалансований</div>
+              <div style="font-size: 12px; color: #64748b;">Оптимальний баланс граматики, розмовної мови та тестів.</div>
+            </div>
+            <div class="select-card" data-plan="hard" onclick="selectPlan('hard')">
+              <div style="font-weight: 900; color: #e11d48; font-size: 15px;">🔥 Тяжкий</div>
+              <div style="font-size: 12px; font-weight: 700; color: #475569; margin: 4px 0;">60+ хв/день • Інтенсив</div>
+              <div style="font-size: 12px; color: #64748b;">Глибоке занурення та прискорений вихід на рівень носія.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Крок 5: Час до рівня носія -->
+        <div class="box-panel" style="background: #fffbeb; border-color: #fde68a;">
+          <div class="label-title">
+            <span>5. Скільки часу в тебе є, щоб вивчити мову як носій (C1/C2)? ⏳</span>
+          </div>
+          <div class="option-cards-4" id="timeline-cards">
+            <div class="select-card" data-time="3m" onclick="selectTimeline('3m')">
+              <div style="font-weight: 900; font-size: 15px;">3 місяці</div>
+              <div style="font-size: 11px; color: #b45309; font-weight: 700;">Турбо • 35 слів/день</div>
+            </div>
+            <div class="select-card amber-active" data-time="6m" onclick="selectTimeline('6m')">
+              <div style="font-weight: 900; font-size: 15px;">6 місяців</div>
+              <div style="font-size: 11px; color: #b45309; font-weight: 700;">Інтенсив • 20 слів/день</div>
+            </div>
+            <div class="select-card" data-time="1y" onclick="selectTimeline('1y')">
+              <div style="font-weight: 900; font-size: 15px;">1 рік</div>
+              <div style="font-size: 11px; color: #b45309; font-weight: 700;">Стандарт • 12 слів/день</div>
+            </div>
+            <div class="select-card" data-time="2y" onclick="selectTimeline('2y')">
+              <div style="font-weight: 900; font-size: 15px;">2 роки</div>
+              <div style="font-size: 11px; color: #b45309; font-weight: 700;">Комфорт • 7 слів/день</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="width: 100%; padding: 16px; font-size: 16px;" onclick="saveProfileAndStart()">
+          Почати навчання на 5+ 🚀
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- МОДАЛЬНЕ ВІКНО ІНТЕРАКТИВНОГО УРОКУ -->
+  <div id="lesson-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-card" style="max-width: 560px; padding: 26px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <span id="lesson-modal-badge" class="level-tag">A1–A2 • Урок</span>
+        <button class="btn btn-outline" style="padding: 6px 12px;" onclick="closeLessonModal()">✕</button>
+      </div>
+      <h2 id="lesson-modal-title" style="font-size: 22px; font-weight: 900; margin-bottom: 14px;">Назва уроку</h2>
+      <div id="lesson-modal-content" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;"></div>
+      <button id="lesson-complete-btn" class="btn btn-success" style="width: 100%; padding: 14px; font-size: 15px;" onclick="completeCurrentLesson()">
+        Завершити урок (+25 XP, +15 Леїв) 🎉
+      </button>
+    </div>
+  </div>
+
+  <!-- ВЕРХНЯ ПАНЕЛЬ (HEADER) -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-logo">5+</div>
+        <div>
+          <div style="font-weight: 900; font-size: 19px; letter-spacing: -0.5px;">
+            Lingua<span style="color: var(--primary);">50+</span>
+          </div>
+          <div id="header-lang-display" style="font-size: 12px; font-weight: 700; color: var(--muted);">
+            🇪🇸 Іспанська • Рівень носія за 6 міс.
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-bar">
+        <!-- Рівень та XP -->
+        <div class="stat-pill">
+          <span>⭐ Рівень <strong id="header-level">1</strong></span>
+          <div class="xp-bar-wrap">
+            <div id="header-xp-bar" class="xp-bar-fill"></div>
+          </div>
+          <span id="header-xp-text" style="font-size: 11px; color: var(--muted);">0/100 XP</span>
+        </div>
+
+        <!-- Валюта Леї -->
+        <div class="stat-pill lei" onclick="switchTab('shop')" title="Перейти в магазин">
+          <span>🪙 <strong id="header-lei">50</strong> Леїв</span>
+        </div>
+
+        <!-- Статус VIP Без реклами -->
+        <div id="header-vip-badge" class="stat-pill vip" style="display: none;">
+          <span>👑 VIP: Без реклами</span>
+        </div>
+
+        <!-- Кнопка зміни профілю / мови -->
+        <button class="btn btn-outline" style="padding: 7px 13px; font-size: 12px;" onclick="openOnboarding()">
+          ⚙️ <span id="header-nick">Поліглот_5+</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Навігаційні вкладки -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" data-tab="learn" onclick="switchTab('learn')">📚 Навчання (Рівні легкості)</button>
+      <button class="tab-btn" data-tab="tests" onclick="switchTab('tests')">✅ Тести для перевірки</button>
+      <button class="tab-btn" data-tab="ai" onclick="switchTab('ai')">🤖 AI-Репетитор (52 мови)</button>
+      <button class="tab-btn" data-tab="shop" onclick="switchTab('shop')">🛍️ Магазин (Без реклами)</button>
+    </div>
+  </header>
+
+  <!-- ОСНОВНИЙ КОНТЕНТ -->
+  <main>
+    <!-- ВКЛАДКА 1: НАВЧАННЯ -->
+    <section id="tab-learn" class="tab-section active">
+      <div class="hero-card">
+        <div style="max-width: 620px;">
+          <div id="hero-age-tag" style="font-size: 12px; font-weight: 800; background: rgba(255,255,255,0.2); display: inline-block; padding: 5px 12px; border-radius: 99px; margin-bottom: 10px;">
+            🚀 Вікова адаптація: 14–17 років (Школяр)
+          </div>
+          <h2 id="hero-greeting" style="font-size: 26px; font-weight: 900;">Привіт, Поліглот_5+!</h2>
+          <p id="hero-method-text" style="font-size: 14px; opacity: 0.92; margin-top: 6px;">
+            Твоя персональна програма підібрана під твій вік та план. Проходь уроки, підвищуй рівень та збирай Леї!
+          </p>
+          <div class="hero-badges">
+            <span class="hero-badge" id="hero-plan-badge">📋 План: Середній (30 хв/день)</span>
+            <span class="hero-badge" id="hero-time-badge">⏳ Ціль носія: 6 місяців (20 слів/день)</span>
+            <span class="hero-badge" id="hero-daily-badge">🎯 Норма: 3 уроки/день</span>
+          </div>
+        </div>
+
+        <div class="phrase-box">
+          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.85; font-weight: 700;">
+            Фраза дня обраною мовою
+          </div>
+          <div id="hero-phrase-native" style="font-size: 20px; font-weight: 900; margin: 6px 0;">
+            ¡Hola! ¿Cómo estás?
+          </div>
+          <div id="hero-phrase-trans" style="font-size: 12px; opacity: 0.9;">
+            Вимова: [Ола! Комо естас?] — «Привіт! Як справи?»
+          </div>
+          <button class="btn" style="background: #fff; color: var(--primary); width: 100%; margin-top: 12px; padding: 9px;" onclick="switchTab('ai')">
+            💬 Запитати AI-репетитора
+          </button>
+        </div>
+      </div>
+
+      <!-- Контейнер для 3 рівнів складності -->
+      <div id="levels-container"></div>
+    </section>
+
+    <!-- ВКЛАДКА 2: ТЕСТИ ДЛЯ ПЕРЕВІРКИ -->
+    <section id="tab-tests" class="tab-section">
+      <div class="quiz-card">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border);">
+          <div>
+            <h2 id="quiz-header-title" style="font-size: 22px; font-weight: 900;">🏆 Тест знань: Іспанська</h2>
+            <p style="font-size: 13px; color: var(--muted);">5 питань • Отримай до +60 XP та +40 Леїв за успішне проходження!</p>
+          </div>
+          <select id="quiz-level-select" class="input-field" style="width: auto;" onchange="initQuiz()">
+            <option value="easy">Рівень: Легкий (A1–A2)</option>
+            <option value="medium">Рівень: Середній (B1–B2)</option>
+            <option value="hard">Рівень: Носій (C1–C2)</option>
+          </select>
+        </div>
+
+        <div id="quiz-body"></div>
+      </div>
+    </section>
+
+    <!-- ВКЛАДКА 3: AI-РЕПЕТИТОР -->
+    <section id="tab-ai" class="tab-section">
+      <div class="ai-container">
+        <div class="ai-top">
+          <div>
+            <div style="font-weight: 900; font-size: 17px;">🤖 AI-Репетитор Lingua50+</div>
+            <div id="ai-subtitle" style="font-size: 12px; opacity: 0.9;">Миттєвий переклад, вимова та граматика для 52 мов</div>
+          </div>
+          <span style="background: rgba(16, 185, 129, 0.25); border: 1px solid #6ee7b7; padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 800;">
+            ● Онлайн
+          </span>
+        </div>
+
+        <div class="ai-quick-prompts" id="ai-quick-prompts"></div>
+
+        <div class="ai-messages" id="ai-messages"></div>
+
+        <form class="ai-input-bar" onsubmit="handleAiSubmit(event)">
+          <input type="text" id="ai-input" class="input-field" placeholder="Наприклад: Як буде іспанською 'дякую за допомогу'?" />
+          <button type="submit" class="btn btn-primary">Надіслати ➤</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ВКЛАДКА 4: МАГАЗИН (ПІДПИСКА БЕЗ РЕКЛАМИ) -->
+    <section id="tab-shop" class="tab-section">
+      <div style="background: linear-gradient(135deg, #f59e0b, #ea580c); color: #fff; border-radius: 24px; padding: 24px; margin-bottom: 20px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px;">
+        <div>
+          <h2 style="font-size: 24px; font-weight: 900;">🛍️ Магазин Lingua50+</h2>
+          <p style="font-size: 14px; opacity: 0.95; margin-top: 4px;">
+            Витрачай зароблені за уроки та тести <strong>Леї</strong>, щоб повністю прибрати рекламу або прискорити прокачку!
+          </p>
+        </div>
+        <div style="background: rgba(255,255,255,0.2); padding: 12px 20px; border-radius: 16px; font-size: 20px; font-weight: 900;">
+          🪙 Баланс: <span id="shop-lei-balance">50</span> Леїв
+        </div>
+      </div>
+
+      <div class="shop-grid" id="shop-grid"></div>
+    </section>
+  </main>
+
+  <!-- РЕКЛАМНИЙ БАНЕР (ЗНИКАЄ ПІСЛЯ ПОКУПКИ ПІДПИСКИ ЗА ЛЕЇ) -->
+  <div id="ad-banner">
+    <div class="ad-inner">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="background: #334155; color: #cbd5e1; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase;">
+          Реклама
+        </span>
+        <span style="font-size: 13px;">
+          🌍 <strong>Подорожуй без мовних бар'єрів!</strong> Збирай Леї за уроки та вимикай рекламу назавжди.
+        </span>
+      </div>
+      <button class="btn btn-amber" style="padding: 8px 14px; font-size: 12px;" onclick="switchTab('shop')">
+        Прибрати рекламу за 100 Леїв 🪙
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. БАЗА ДАНИХ ПОНАД 52 МОВ СВІТУ
+    // =========================================================================
+    const LANGUAGES = [
+      { id: 'es', name: 'Іспанська', native: 'Español', flag: '🇪🇸', hello: '¡Hola! ¿Cómo estás?', helloPron: 'Ола! Комо естас?', thanks: '¡Muchas gracias por tu ayuda!', thanksPron: 'Мучас грасіас пор ту аюда!', cost: '¿Cuánto cuesta esto?', costPron: 'Куанто куеста есто?', water: 'Agua', waterPron: 'Агуа', love: 'Me encanta aprender idiomas', lovePron: 'Ме енканта апрєндер ідіомас', grammar: 'В іспанській мові іменники мають чоловічий (el) або жіночий (la) рід, а прикметники зазвичай ставляться після іменника.' },
+      { id: 'en', name: 'Англійська', native: 'English', flag: '🇬🇧', hello: 'Hello! How are you?', helloPron: 'Хелоу! Хау ар ю?', thanks: 'Thank you very much for your help!', thanksPron: 'Сенк ю вері мач фор йор хелп!', cost: 'How much does this cost?', costPron: 'Хау мач даз зіс кост?', water: 'Water', waterPron: 'Вотер', love: 'I love learning languages', lovePron: 'Ай лав льорнінг ленгвіджиз', grammar: 'В англійській мові фіксований порядок слів: Підмет + Присудок + Додаток (SVO).' },
+      { id: 'de', name: 'Німецька', native: 'Deutsch', flag: '🇩🇪', hello: 'Hallo! Wie geht es dir?', helloPron: 'Халло! Ві ґет ес дір?', thanks: 'Vielen Dank für deine Hilfe!', thanksPron: 'Філен данк фюр дайне хільфе!', cost: 'Wie viel kostet das?', costPron: 'Ві філь костет дас?', water: 'Wasser', waterPron: 'Вассер', love: 'Ich liebe es, Sprachen zu lernen', lovePron: 'Іх лібе ес, шпрахен цу лернен', grammar: 'У німецькій мові всі іменники пишуться з великої літери і мають три артиклі: der, die, das.' },
+      { id: 'fr', name: 'Французька', native: 'Français', flag: '🇫🇷', hello: 'Bonjour ! Comment ça va ?', helloPron: 'Бонжур! Коман са ва?', thanks: 'Merci beaucoup pour votre aide !', thanksPron: 'Мерсі боку пур вотр ед!', cost: 'Combien ça coûte ?', costPron: 'Комб’єн са кут?', water: 'Eau', waterPron: 'О', love: 'J’adore apprendre les langues', lovePron: 'Жадор апрандр ле ланг', grammar: 'У французькій мові багато кінцевих приголосних не читаються, а наголос завжди падає на останній склад.' },
+      { id: 'it', name: 'Італійська', native: 'Italiano', flag: '🇮🇹', hello: 'Ciao! Come stai?', helloPron: 'Чао! Коме стаї?', thanks: 'Grazie mille per il tuo aiuto!', thanksPron: 'Граціє мілле пер іль туо аюто!', cost: 'Quanto costa questo?', costPron: 'Куанто коста куесто?', water: 'Acqua', waterPron: 'Аква', love: 'Amo imparare le lingue', lovePron: 'Амо імпараре ле лінгуе', grammar: 'В італійській мові голосні вимовляються чітко, а подвійні приголосні читаються подовжено.' },
+      { id: 'pl', name: 'Польська', native: 'Polski', flag: '🇵🇱', hello: 'Cześć! Jak się masz?', helloPron: 'Чещь! Як шє маш?', thanks: 'Bardzo dziękuję za pomoc!', thanksPron: 'Бардзо джєнкує за помоц!', cost: 'Ile to kosztuje?', costPron: 'Ілє то коштує?', water: 'Woda', waterPron: 'Вода', love: 'Uwielbiam uczyć się języków', lovePron: 'Увєльбям учить шє єнзикув', grammar: 'У польській мові наголос майже завжди падає на передостанній склад слова.' },
+      { id: 'ja', name: 'Японська', native: '日本語', flag: '🇯🇵', hello: 'こんにちは！お元気ですか？', helloPron: 'Коннічіва! О-ґенкі деска?', thanks: '助けてくれてありがとう！', thanksPron: 'Тасукете курете аріґато!', cost: 'これはいくらですか？', costPron: 'Коре ва ікура деска?', water: '水 (Mizu)', waterPron: 'Мідзу', love: '言語を学ぶのが大好きです', lovePron: 'Ґенґо о манабу но ґа дайскі дес', grammar: 'У японській мові дієслово завжди стоїть у самому кінці речення, а для зв’язку слів використовуються частки (は, を, に).' },
+      { id: 'ko', name: 'Корейська', native: '한국어', flag: '🇰🇷', hello: '안녕하세요! 잘 지내세요?', helloPron: 'Анньонхасейо! Чаль чінесейо?', thanks: '도와주셔서 감사합니다!', thanksPron: 'Товачушьосо камсахамніда!', cost: '이거 얼마예요?', costPron: 'Іґо ольмаєйо?', water: '물 (Mul)', waterPron: 'Муль', love: '언어 배우는 것을 좋아해요', lovePron: 'Оно пеунин ґосиль чоахео', grammar: 'Корейський алфавіт Хангиль дуже логічний, а закінчення дієслів залежать від рівня ввічливості.' },
+      { id: 'zh', name: 'Китайська', native: '中文', flag: '🇨🇳', hello: '你好！你好吗？', helloPron: 'Ні хао! Ні хао ма?', thanks: '非常感谢你的帮助！', thanksPron: 'Фейчан ґаньсє ні де банчжу!', cost: '这个多少钱？', costPron: 'Чже ґе дуошао цянь?', water: '水 (Shuǐ)', waterPron: 'Шуй', love: '我喜欢学习语言', lovePron: 'Во сіхуань сюесі юйянь', grammar: 'У китайській мові немає відмінків і часів дієслів, але критично важливі 4 тони вимови.' },
+      { id: 'pt', name: 'Португальська', native: 'Português', flag: '🇵🇹', hello: 'Olá! Tudo bem?', helloPron: 'Ола! Туду бем?', thanks: 'Muito obrigado pela ajuda!', thanksPron: 'Муйту обріґаду пела ажуда!', cost: 'Quanto custa isto?', costPron: 'Куанту кушта ішту?', water: 'Água', waterPron: 'Аґуа', love: 'Eu amo aprender idiomas', lovePron: 'Еу аму апрєндер ідіомаш', grammar: 'У португальській мові чоловіки кажуть «obrigado», а жінки — «obrigada».' },
+      { id: 'tr', name: 'Турецька', native: 'Türkçe', flag: '🇹🇷', hello: 'Merhaba! Nasılsın?', helloPron: 'Мерхаба! Насилсин?', thanks: 'Yardımın için teşekkür ederim!', thanksPron: 'Ярдимин ічін тешеккюр едерім!', cost: 'Bu ne kadar?', costPron: 'Бу не кадар?', water: 'Su', waterPron: 'Су', love: 'Dil öğrenmeyi seviyorum', lovePron: 'Діль оренмейі севійорум', grammar: 'Турецька мова аглютинативна: значення додаються за допомогою гармонійних суфіксів.' },
+      { id: 'ar', name: 'Арабська', native: 'العربية', flag: '🇸🇦', hello: 'مرحباً! كيف حالك؟', helloPron: 'Мархабан! Кайфа халюк?', thanks: 'شكراً جزيلاً لمساعدتك!', thanksPron: 'Шукран джазілян лі-мусаадатік!', cost: 'بكم هذا؟', costPron: 'Бікам хаза?', water: 'ماء (Maa)', waterPron: 'Маа', love: 'أحب تعلم اللغات', lovePron: 'Ухіббу тааллюм аль-люгат', grammar: 'Арабське письмо читається справа наліво, а слова будуються на основі триприголосних коренів.' },
+      { id: 'cs', name: 'Чеська', native: 'Čeština', flag: '🇨🇿', hello: 'Ahoj! Jak se máš?', helloPron: 'Агой! Як се маш?', thanks: 'Moc děkuji za pomoc!', thanksPron: 'Моц дєкуї за помоц!', cost: 'Kolik to stojí?', costPron: 'Колік то стої?', water: 'Voda', waterPron: 'Вода', love: 'Miluji učení jazyků', lovePron: 'Мілуї учені язику', grammar: 'У чеській мові наголос завжди падає на перший склад слова.' },
+      { id: 'nl', name: 'Нідерландська', native: 'Nederlands', flag: '🇳🇱', hello: 'Hallo! Hoe gaat het?', helloPron: 'Халло! Ху ґат хет?', thanks: 'Heel erg bedankt voor je hulp!', thanksPron: 'Хел ерґ беданкт фор є хюлп!', cost: 'Hoeveel kost dit?', costPron: 'Хуфел кост діт?', water: 'Water', waterPron: 'Ватер', love: 'Ik hou van talen leren', lovePron: 'Ік хау фан тален лерен', grammar: 'Нідерландська мова знаходиться посередині між англійською та німецькою.' },
+      { id: 'sv', name: 'Шведська', native: 'Svenska', flag: '🇸🇪', hello: 'Hej! Hur mår du?', helloPron: 'Хей! Хюр мор дю?', thanks: 'Tack så mycket för hjälpen!', thanksPron: 'Так со мюкке фьор єльпен!', cost: 'Hur mycket kostar det?', costPron: 'Хюр мюкке костар де?', water: 'Vatten', waterPron: 'Ваттен', love: 'Jag älskar att lära mig språk', lovePron: 'Яґ ельскар атт лера мей спрок', grammar: 'У шведській мові означений артикль приєднується як суфікс у кінці іменника.' },
+      { id: 'no', name: 'Норвезька', native: 'Norsk', flag: '🇳🇴', hello: 'Hei! Hvordan går det?', helloPron: 'Хай! Вордан ґор де?', thanks: 'Tusen takk for hjelpen!', thanksPron: 'Тюсен такк фор єльпен!', cost: 'Hvor mye koster dette?', costPron: 'Вор мюе костер детте?', water: 'Vann', waterPron: 'Ванн', love: 'Jeg elsker å lære språk', lovePron: 'Яй ельскер о лере спрок', grammar: 'Норвезька має мелодійну інтонацію і просту систему дієвідмін без зміни за особами.' },
+      { id: 'da', name: 'Данська', native: 'Dansk', flag: '🇩🇰', hello: 'Hej! Hvordan har du det?', helloPron: 'Хай! Вордан хар ду де?', thanks: 'Tusind tak for hjælpen!', thanksPron: 'Тюсін так фор єльпен!', cost: 'Hvad koster det?', costPron: 'Ва костер де?', water: 'Vand', waterPron: 'Ван', love: 'Jeg elsker at lære sprog', lovePron: 'Яй ельскер ат лере спроу', grammar: 'У данській мові багато м’яких редукованих приголосних у кінці слів.' },
+      { id: 'fi', name: 'Фінська', native: 'Suomi', flag: '🇫🇮', hello: 'Moi! Mitä kuuluu?', helloPron: 'Мой! Мітя куулуу?', thanks: 'Kiitos paljon avusta!', thanksPron: 'Кійтос пальйон авуста!', cost: 'Paljonko tämä maksaa?', costPron: 'Пальйонко тяммя максаа?', water: 'Vesi', waterPron: 'Весі', love: 'Rakastan kielten oppimista', lovePron: 'Ракастан кіельтен оппіміста', grammar: 'У фінській мові немає роду і майбутнього часу, але є 15 відмінків.' },
+      { id: 'el', name: 'Грецька', native: 'Ελληνικά', flag: '🇬🇷', hello: 'Γεια σου! Τι κάνεις;', helloPron: 'Я су! Ті каніс?', thanks: 'Ευχαριστώ πολύ για τη βοήθεια!', thanksPron: 'Ефхарісто полі я ті воіфія!', cost: 'Πόσο κοστίζει αυτό;', costPron: 'Посо костізі афто?', water: 'Νερό', waterPron: 'Неро', love: 'Λατρεύω να μαθαίνω γλώσσες', lovePron: 'Латрево на мафено ґлосес', grammar: 'У грецькій мові наголос завжди позначається на письмі спеціальним знаком.' },
+      { id: 'ro', name: 'Румунська', native: 'Română', flag: '🇷🇴', hello: 'Salut! Ce mai faci?', helloPron: 'Салют! Че май фач?', thanks: 'Mulțumesc mult pentru ajutor!', thanksPron: 'Мульцумеск мулт пентру ажутор!', cost: 'Cât costă asta?', costPron: 'Кит косте аста?', water: 'Apă', waterPron: 'Апе', love: 'Îmi place să învăț limbi', lovePron: 'Имь плаче се инвец лімбь', grammar: 'Румунська — єдина романська мова Східної Європи з постпозитивним артиклем.' },
+      { id: 'hu', name: 'Угорська', native: 'Magyar', flag: '🇭🇺', hello: 'Szia! Hogy vagy?', helloPron: 'Сія! Ходь вадь?', thanks: 'Nagyon köszönöm a segítséget!', thanksPron: 'Надьон кьосьоньом а шеґітшеґет!', cost: 'Mennyibe kerül ez?', costPron: 'Менньібе керюль ез?', water: 'Víz', waterPron: 'Віз', love: 'Szeretek nyelveket tanulni', lovePron: 'Серетек ньєлвекет танулні', grammar: 'В угорській мові наголос завжди на першому складі, а прийменники замінюються суфіксами.' },
+      { id: 'bg', name: 'Болгарська', native: 'Български', flag: '🇧🇬', hello: 'Здравей! Как си?', helloPron: 'Здравей! Как сі?', thanks: 'Много благодаря за помощта!', thanksPron: 'Много благодаря за помощта!', cost: 'Колко струва това?', costPron: 'Колко струва това?', water: 'Вода', waterPron: 'Вода', love: 'Обичам да уча езици', lovePron: 'Обічам да уча езіці', grammar: 'У болгарській мові практично відсутні відмінки іменників, але є означений артикль у кінці слова.' },
+      { id: 'hr', name: 'Хорватська', native: 'Hrvatski', flag: '🇭🇷', hello: 'Bok! Kako si?', helloPron: 'Бок! Како сі?', thanks: 'Hvala puno na pomoći!', thanksPron: 'Хвала пуно на помочі!', cost: 'Koliko ovo košta?', costPron: 'Коліко ово кошта?', water: 'Voda', waterPron: 'Вода', love: 'Volim učiti jezike', lovePron: 'Волім учіті єзіке', grammar: 'Хорватська мова використовує латиницю та має 7 відмінків.' },
+      { id: 'sk', name: 'Словацька', native: 'Slovenčina', flag: '🇸🇰', hello: 'Ahoj! Ako sa máš?', helloPron: 'Агой! Ако са маш?', thanks: 'Ďakujem pekne za pomoc!', thanksPron: 'Дякуєм пекне за помоц!', cost: 'Koľko to stojí?', costPron: 'Колько то стої?', water: 'Voda', waterPron: 'Вода', love: 'Milujem učenie jazykov', lovePron: 'Мілуєм ученіє язиков', grammar: 'Словацька мова дуже близька до української та чеської за лексикою.' },
+      { id: 'sl', name: 'Словенська', native: 'Slovenščina', flag: '🇸🇮', hello: 'Živjo! Kako si?', helloPron: 'Жівйо! Како сі?', thanks: 'Najlepša hvala za pomoč!', thanksPron: 'Найлепша хвала за помоч!', cost: 'Koliko to stane?', costPron: 'Коліко то стане?', water: 'Voda', waterPron: 'Вода', love: 'Rad se učim jezikov', lovePron: 'Рад се учім єзіков', grammar: 'Словенська мова зберегла двоїну — окрему граматичну форму для двох предметів або осіб.' },
+      { id: 'lt', name: 'Литовська', native: 'Lietuvių', flag: '🇱🇹', hello: 'Labas! Kaip sekasi?', helloPron: 'Лабас! Кайп секасі?', thanks: 'Labai ačiū už pagalbą!', thanksPron: 'Лабай ачю уж паґалба!', cost: 'Kiek tai kainuoja?', costPron: 'Кєк тай кайнуоя?', water: 'Vanduo', waterPron: 'Вандуо', love: 'Man patinka mokytis kalbų', lovePron: 'Ман патінка мокітіс калбу', grammar: 'Литовська — одна з найдавніших живих індоєвропейських мов.' },
+      { id: 'lv', name: 'Латвійська', native: 'Latviešu', flag: '🇱🇻', hello: 'Sveiki! Kā klājas?', helloPron: 'Свейкі! Ка клаяс?', thanks: 'Liels paldies par palīdzību!', thanksPron: 'Ліелс палдіес пар палідзібу!', cost: 'Cik tas maksā?', costPron: 'Цік тас макса?', water: 'Ūdens', waterPron: 'Уденс', love: 'Man patīk mācīties valodas', lovePron: 'Ман патік мацітіес валодас', grammar: 'У латвійській мові наголос майже завжди на першому складі, а довгі голосні позначаються рискою (ā, ē, ī, ū).' },
+      { id: 'et', name: 'Естонська', native: 'Eesti', flag: '🇪🇪', hello: 'Tere! Kuidas läheb?', helloPron: 'Тере! Куйдас ляхеб?', thanks: 'Suur aitäh abi eest!', thanksPron: 'Суур айтях абі еест!', cost: 'Kui palju see maksab?', costPron: 'Куй палью сее максаб?', water: 'Vesi', waterPron: 'Весі', love: 'Mulle meeldib keeli õppida', lovePron: 'Мулле меелдіб кеелі иппіда', grammar: 'В естонській мові розрізняють три ступені довготи звуків.' },
+      { id: 'hi', name: 'Гінді', native: 'हिन्दी', flag: '🇮🇳', hello: 'नमस्ते! आप कैसे हैं?', helloPron: 'Намасте! Аап кайсе хен?', thanks: 'आपकी मदद के लिए धन्यवाद!', thanksPron: 'Аапкі мадад ке ліє дханьяваад!', cost: 'यह कितने का है?', costPron: 'Єх кітне ка хе?', water: 'पानी (Paani)', waterPron: 'Паані', love: 'मुझे भाषाएँ सीखना पसंद है', lovePron: 'Муджхе бхашаєн сікхна пасанд хе', grammar: 'Писемність Деванагарі читається зліва направо і має характерну верхню горизонтальну лінію.' },
+      { id: 'vi', name: 'В’єтнамська', native: 'Tiếng Việt', flag: '🇻🇳', hello: 'Xin chào! Bạn khỏe không?', helloPron: 'Сін чао! Бан кхое кхонг?', thanks: 'Cảm ơn bạn rất nhiều!', thanksPron: 'Кам он бан зат ньєу!', cost: 'Cái này bao nhiêu tiền?', costPron: 'Кай най бао ньєу тєн?', water: 'Nước', waterPron: 'Ниок', love: 'Tôi thích học ngoại ngữ', lovePron: 'Той тхік хок нгоай нги', grammar: 'В’єтнамська мова використовує латиницю з діакритичними знаками для 6 тонів.' },
+      { id: 'th', name: 'Тайська', native: 'ไทย', flag: '🇹🇭', hello: 'สวัสดี! สบายดีไหม?', helloPron: 'Саватді! Сабай ді май?', thanks: 'ขอบคุณมากสำหรับความช่วยเหลือ!', thanksPron: 'Кхоп кхун мак!', cost: 'อันนี้ราคาเท่าไหร่?', costPron: 'Ан ні ракха тхао рай?', water: 'น้ำ (Nam)', waterPron: 'Нам', love: 'ฉันชอบเรียนภาษา', lovePron: 'Чхан чхоп ріан пхаса', grammar: 'У тайському письмі слова в реченні пишуться без пробілів між ними.' },
+      { id: 'id', name: 'Індонезійська', native: 'Bahasa Indonesia', flag: '🇮🇩', hello: 'Halo! Apa kabar?', helloPron: 'Хало! Апа кабар?', thanks: 'Terima kasih banyak atas bantuannya!', thanksPron: 'Теріма касіх баньяк!', cost: 'Berapa harganya ini?', costPron: 'Берапа харґаня іні?', water: 'Air', waterPron: 'Аїр', love: 'Saya suka belajar bahasa', lovePron: 'Сая сука беладжар бахаса', grammar: 'Індонезійська не має часів дієслів і родів, що робить її дуже легкою для старту.' },
+      { id: 'ms', name: 'Малайська', native: 'Bahasa Melayu', flag: '🇲🇾', hello: 'Hai! Apa khabar?', helloPron: 'Хай! Апа кхабар?', thanks: 'Terima kasih banyak!', thanksPron: 'Теріма касіх баньяк!', cost: 'Berapa harga ini?', costPron: 'Берапа харґа іні?', water: 'Air', waterPron: 'Аїр', love: 'Saya suka belajar bahasa', lovePron: 'Сая сука беладжар бахаса', grammar: 'Множина в малайській мові часто утворюється подвоєнням слова (наприклад, buku-buku).' },
+      { id: 'tl', name: 'Тагальська', native: 'Tagalog', flag: '🇵🇭', hello: 'Kamusta! Kumusta ka?', helloPron: 'Камуста! Кумуста ка?', thanks: 'Maraming salamat sa tulong!', thanksPron: 'Марамінг саламат са тулонг!', cost: 'Magkano ito?', costPron: 'Маґкано іто?', water: 'Tubig', waterPron: 'Тубіґ', love: 'Mahilig akong mag-aral ng wika', lovePron: 'Махіліґ аконґ маґ-араль нґ віка', grammar: 'У тагальській мові ввічливе звертання позначається часткою «po».' },
+      { id: 'he', name: 'Іврит', native: 'עברית', flag: '🇮🇱', hello: 'שלום! מה שלומך?', helloPron: 'Шалом! Ма шломха?', thanks: 'תודה רבה על העזרה!', thanksPron: 'Тода раба аль ха-езра!', cost: 'כמה זה עולה?', costPron: 'Кама зе оле?', water: 'מים (Mayim)', waterPron: 'Маїм', love: 'אני אוהב ללמוד שפות', lovePron: 'Ані огев лільмод сафот', grammar: 'Іврит пишеться справа наліво, а голосні зазвичай передаються огласовками або опускаються.' },
+      { id: 'fa', name: 'Перська', native: 'فارسی', flag: '🇮🇷', hello: 'سلام! چطوری؟', helloPron: 'Салям! Четорі?', thanks: 'از کمک شما ممنونم!', thanksPron: 'Аз комак-е шома мамнунам!', cost: 'این چند است؟', costPron: 'Ін чанд аст?', water: 'آب (Āb)', waterPron: 'Аб', love: 'من عاشق یادگیری زبان هستم', lovePron: 'Ман ашег-е ядґірі-є забан хастам', grammar: 'У перській мові немає граматичного роду навіть у займенниках.' },
+      { id: 'ka', name: 'Грузинська', native: 'ქართული', flag: '🇬🇪', hello: 'გამარჯობა! როგორ ხარ?', helloPron: 'Гамарджоба! Рогор хар?', thanks: 'დიდი მადლობა დახმარებისთვის!', thanksPron: 'Діді мадлоба дахмаребіствіс!', cost: 'რა ღირს ეს?', costPron: 'Ра гірс ес?', water: 'წყალი (Ts’q’ali)', waterPron: 'Цкалі', love: 'მიყვარს ენების სწავლა', lovePron: 'Мікварс енебіс сцавла', grammar: 'Грузинський алфавіт Мхедрулі має 33 літери і не має великих та малих літер.' },
+      { id: 'hy', name: 'Вірменська', native: 'Հայերեն', flag: '🇦🇲', hello: 'Բարև! Ինչպե՞ս ես:', helloPron: 'Барев! Інчпес ес?', thanks: 'Շատ շնորհակալ եմ օգնության համար:', thanksPron: 'Шат шноракал ем оґнутян хамар!', cost: 'Սա ի՞նչ արժե:', costPron: 'Са інч арже?', water: 'Ջուր (Jur)', waterPron: 'Джур', love: 'Ես սիրում եմ լեզուներ սովորել', lovePron: 'Єс сірум ем лезунер соворел', grammar: 'Вірменська мова має власний унікальний алфавіт з 39 літер, створений у 405 році.' },
+      { id: 'az', name: 'Азербайджанська', native: 'Azərbaycan', flag: '🇦🇿', hello: 'Salam! Necəsən?', helloPron: 'Салам! Неджесен?', thanks: 'Köməyiniz üçün çox sağ olun!', thanksPron: 'Кьомеїніз учюн чох саг олун!', cost: 'Bu neçəyədir?', costPron: 'Бу нечеєдір?', water: 'Su', waterPron: 'Су', love: 'Mən dil öyrənməyi sevirəm', lovePron: 'Мен діль ойренмеї севірем', grammar: 'В азербайджанській мові суворо дотримується закон гармонії голосних.' },
+      { id: 'kk', name: 'Казахська', native: 'Қазақ тілі', flag: '🇰🇿', hello: 'Сәлем! Қалайсың?', helloPron: 'Сялем! Калайсин?', thanks: 'Көмегіңізге көп рахмет!', thanksPron: 'Кьомегінізге кьоп рахмет!', cost: 'Бұл қанша тұрады?', costPron: 'Бул канша туради?', water: 'Су', waterPron: 'Су', love: 'Мен тіл үйренуді жақсы көремін', lovePron: 'Мен тіль уйренуді жакси кьоремін', grammar: 'У казахській мові 7 відмінків і відсутній граматичний рід.' },
+      { id: 'uz', name: 'Узбецька', native: 'Oʻzbek', flag: '🇺🇿', hello: 'Salom! Qalaysiz?', helloPron: 'Салом! Калайсиз?', thanks: 'Yordamingiz uchun katta rahmat!', thanksPron: 'Йордамінґіз учун катта рахмат!', cost: 'Bu qancha turadi?', costPron: 'Бу канча тураді?', water: 'Suv', waterPron: 'Сув', love: 'Men tillarni o‘rganishni yaxshi ko‘raman', lovePron: 'Мен тілларні урґанішні яхші кураман', grammar: 'Сучасна узбецька мова використовує латинську графіку.' },
+      { id: 'sw', name: 'Суахілі', native: 'Kiswahili', flag: '🇰🇪', hello: 'Habari! Hujambo?', helloPron: 'Хабарі! Худжамбо?', thanks: 'Asante sana kwa msaada wako!', thanksPron: 'Асанте сана ква мсаада вако!', cost: 'Hii ni bei gani?', costPron: 'Хії ні беї ґані?', water: 'Maji', waterPron: 'Маджі', love: 'Ninapenda kujifunza lugha', lovePron: 'Нінапенда куджіфунза луга', grammar: 'У суахілі слова змінюються за допомогою префіксів на початку слова, а не закінчень.' },
+      { id: 'af', name: 'Африкаанс', native: 'Afrikaans', flag: '🇿🇦', hello: 'Hallo! Hoe gaan dit?', helloPron: 'Халло! Ху хан діт?', thanks: 'Baie dankie vir jou hulp!', thanksPron: 'Бає данкі фір йоу хюлп!', cost: 'Hoeveel kos dit?', costPron: 'Хуфел кос діт?', water: 'Water', waterPron: 'Ватер', love: 'Ek hou daarvan om tale te leer', lovePron: 'Ек хоу дарфан ом тале те леер', grammar: 'В африкаанс дієслова не змінюються за особами і числами, а заперечення має подвійне «nie».' },
+      { id: 'ga', name: 'Ірландська', native: 'Gaeilge', flag: '🇮🇪', hello: 'Dia duit! Conas atá tú?', helloPron: 'Діа дит! Конас ата ту?', thanks: 'Go raibh míle maith agat!', thanksPron: 'Ґо рев міле ма аґат!', cost: 'Cé mhéad atá air seo?', costPron: 'Ке вед ата ер шо?', water: 'Uisce', waterPron: 'Ішке', love: 'Is breá liom teangacha a fhoghlaim', lovePron: 'Іс бря льом тянґаха а оґлім', grammar: 'В ірландській мові речення зазвичай починається з дієслова (VSO).' },
+      { id: 'cy', name: 'Валлійська', native: 'Cymraeg', flag: '🏴󠁧󠁢󠁷󠁬󠁳󠁿', hello: 'Helo! Sut wyt ti?', helloPron: 'Хело! Сіт уйт ті?', thanks: 'Diolch yn fawr iawn am dy help!', thanksPron: 'Діолх ин ваур яун ам ди хелп!', cost: 'Faint mae hwn yn ei gostio?', costPron: 'Вайнт май хун ин ей ґостіо?', water: 'Dŵr', waterPron: 'Дур', love: 'Rwy’n caru dysgu ieithoedd', lovePron: 'Руйн карі дисґі єйсойд', grammar: 'У валлійській мові початкові приголосні слів змінюються залежно від контексту (мутації).' },
+      { id: 'is', name: 'Ісландська', native: 'Íslenska', flag: '🇮🇸', hello: 'Halló! Hvað segirðu?', helloPron: 'Халло! Квад сеїрду?', thanks: 'Kærar þakkir fyrir hjálpina!', thanksPron: 'Кайрар саккір фірір хяулпіна!', cost: 'Hvað kostar þetta?', costPron: 'Квад костар сетта?', water: 'Vatn', waterPron: 'Ватн', love: 'Ég elska að læra tungumál', lovePron: 'Єґ ельска ад лайра тунґумаул', grammar: 'Ісландська мова майже не змінилася з часів вікінгів.' },
+      { id: 'sq', name: 'Албанська', native: 'Shqip', flag: '🇦🇱', hello: 'Përshëndetje! Si jeni?', helloPron: 'Першендетє! Сі єні?', thanks: 'Faleminderit shumë për ndihmën!', thanksPron: 'Фалеміндеріт шуме пер ндімєн!', cost: 'Sa kushton kjo?', costPron: 'Са куштон кьо?', water: 'Ujë', waterPron: 'Ує', love: 'Më pëlqen të mësoj gjuhë', lovePron: 'Ме пельчен те месой джух', grammar: 'В албанській мові означений артикль приєднується до кінця слова.' },
+      { id: 'mk', name: 'Македонська', native: 'Македонски', flag: '🇲🇰', hello: 'Здраво! Како си?', helloPron: 'Здраво! Како сі?', thanks: 'Многу благодарам за помошта!', thanksPron: 'Многу благодарам за помошта!', cost: 'Колку чини ова?', costPron: 'Колку чіні ова?', water: 'Вода', waterPron: 'Вода', love: 'Сакам да учам јазици', lovePron: 'Сакам да учам язіці', grammar: 'У македонській мові наголос майже завжди на третьому складі з кінця.' },
+      { id: 'sr', name: 'Сербська', native: 'Српски', flag: '🇷🇸', hello: 'Здраво! Како си?', helloPron: 'Здраво! Како сі?', thanks: 'Хвала пуно на помоћи!', thanksPron: 'Хвала пуно на помочі!', cost: 'Колико ово кошта?', costPron: 'Коліко ово кошта?', water: 'Вода', waterPron: 'Вода', love: 'Волим да учим језике', lovePron: 'Волім да учім єзіке', grammar: 'Сербська мова офіційно використовує два алфавіти: кирилицю та латиницю.' },
+      { id: 'la', name: 'Латинська', native: 'Latina', flag: '🏛️', hello: 'Salve! Quid agis?', helloPron: 'Сальве! Квід аґіс?', thanks: 'Gratias tibi ago pro auxilio!', thanksPron: 'Ґратіас тібі аґо про ауксіліо!', cost: 'Quanti hoc constat?', costPron: 'Кванті хок констат?', water: 'Aqua', waterPron: 'Аква', love: 'Linguas discere amo', lovePron: 'Лінґуас діскере амо', grammar: 'Латина має 6 відмінків і вільний порядок слів, де дієслово зазвичай стоїть у кінці.' },
+      { id: 'eo', name: 'Есперанто', native: 'Esperanto', flag: '🌍', hello: 'Saluton! Kiel vi fartas?', helloPron: 'Салютон! Кіель ві фартас?', thanks: 'Koran dankon pro via helpo!', thanksPron: 'Коран данкон про віа хельпо!', cost: 'Kiom tio kostas?', costPron: 'Кіом тіо костас?', water: 'Akvo', waterPron: 'Акво', love: 'Mi amas lerni lingvojn', lovePron: 'Мі амас лерні лінґвойн', grammar: 'В есперанто всі іменники закінчуються на -o, прикметники на -a, а винятків з правил немає.' },
+      { id: 'mn', name: 'Монгольська', native: 'Монгол', flag: '🇲🇳', hello: 'Сайн байна уу?', helloPron: 'Сайн байна уу?', thanks: 'Тусалсанд маш их баярлалаа!', thanksPron: 'Тусалсанд маш іх баярлалаа!', cost: 'Энэ ямар үнэтэй вэ?', costPron: 'Ене ямар унетей ве?', water: 'Ус', waterPron: 'Ус', love: 'Би хэл сурах дуртай', lovePron: 'Бі хел сурах дуртай', grammar: 'Сучасна монгольська мова використовує розширену кирилицю.' }
+    ];
+
+    // =========================================================================
+    // 2. УРОКИ ТА МАГАЗИН
+    // =========================================================================
+    const LEVELS_STRUCTURE = [
+      {
+        id: 'easy',
+        code: 'A1–A2',
+        title: 'Легкий рівень (Початківець)',
+        desc: 'Перші слова, привітання, знайомство та базові фрази для подорожей',
+        lessons: [
+          { id: 'l1', title: 'Урок 1: Привітання та знайомство', xp: 25, lei: 15, type: 'hello' },
+          { id: 'l2', title: 'Урок 2: Ввічливість та подяка', xp: 25, lei: 15, type: 'thanks' },
+          { id: 'l3', title: 'Урок 3: Базові слова (Вода, їжа)', xp: 30, lei: 20, type: 'water' }
+        ]
+      },
+      {
+        id: 'medium',
+        code: 'B1–B2',
+        title: 'Середній рівень (Впевнений)',
+        desc: 'Покупки, подорожі, спілкування з місцевими та основи граматики',
+        lessons: [
+          { id: 'l4', title: 'Урок 4: У магазині та кафе: скільки коштує?', xp: 40, lei: 25, type: 'cost' },
+          { id: 'l5', title: 'Урок 5: Основи граматичної будови мови', xp: 45, lei: 30, type: 'grammar' }
+        ]
+      },
+      {
+        id: 'hard',
+        code: 'C1–C2',
+        title: 'Тяжкий рівень (Рівень Носія)',
+        desc: 'Вільне висловлення думок, живі конструкції та фінальна практика носія',
+        lessons: [
+          { id: 'l6', title: 'Урок 6: Природні вирази та мотивація носія', xp: 60, lei: 45, type: 'love' },
+          { id: 'l7', title: 'Урок 7: Комплексний діалог рівня носія', xp: 80, lei: 60, type: 'all' }
+        ]
+      }
+    ];
+
+    const SHOP_ITEMS = [
+      {
+        id: 'adfree_7d',
+        title: 'Підписка Без Реклами (7 днів)',
+        desc: 'Повністю прибирає рекламний банер на 7 днів + золотий значок у профілі.',
+        price: 100,
+        badge: 'Популярне 🔥',
+        type: 'adfree',
+        label: '7 днів'
+      },
+      {
+        id: 'adfree_forever',
+        title: 'VIP Без Реклами (Назавжди)',
+        desc: 'Назавжди вимикає рекламу на платформі Lingua50+ та відкриває статус VIP-поліглота.',
+        price: 250,
+        badge: 'Максимальний 👑',
+        type: 'adfree',
+        label: 'Назавжди'
+      },
+      {
+        id: 'xp_boost',
+        title: 'Бустер Знань (+100 XP миттєво)',
+        desc: 'Миттєво підвищує твій рівень на +1 Level та наближає до статусу носія мови.',
+        price: 75,
+        badge: 'Прокачка ⚡',
+        type: 'xp',
+        amount: 100
+      }
+    ];
+
+    // =========================================================================
+    // 3. СТАН ДОДАТКУ (STATE)
+    // =========================================================================
+    let state = {
+      nickname: 'Поліглот_5+',
+      age: 16,
+      langId: 'es',
+      plan: 'medium',
+      timeline: '6m',
+      xp: 0,
+      lei: 50,
+      completedLessons: [],
+      adFree: false,
+      adFreeLabel: '',
+      activeLesson: null,
+      quizQuestions: [],
+      quizIndex: 0,
+      quizScore: 0,
+      quizAnswered: false,
+      chatHistory: [
+        {
+          sender: 'ai',
+          text: 'Привіт! Я твій AI-репетитор Lingua50+ 🤖✨\nЗапитай мене про переклад будь-якого слова чи фрази на 52 мови світу, вимову або граматику!'
+        }
+      ]
+    };
+
+    // =========================================================================
+    // 4. ДОПОМІЖНІ ФУНКЦІЇ (ВІК, ПЛАН, МОВА, СПОВІЩЕННЯ)
+    // =========================================================================
+    function getLang() {
+      return LANGUAGES.find(l => l.id === state.langId) || LANGUAGES[0];
+    }
+
+    function getAgeInfo(age) {
+      const a = Number(age) || 16;
+      if (a <= 13) {
+        return {
+          group: 'До 13 років • Юний дослідник',
+          emoji: '🦊',
+          method: 'Ігровий формат з яскравими картками, асоціаціями та простими прикладами.'
+        };
+      } else if (a <= 17) {
+        return {
+          group: '14–17 років • Школяр',
+          emoji: '🚀',
+          method: 'Інтерактивний сленг, живі діалоги та динамічний візуал для школярів.'
+        };
+      } else if (a <= 25) {
+        return {
+          group: '18–25 років • Студент',
+          emoji: '🎓',
+          method: 'Академічний + розмовний темп для навчання, подорожей та кар’єри.'
+        };
+      } else {
+        return {
+          group: '26+ років • Дорослий профіль',
+          emoji: '💼',
+          method: 'Практичний бізнес та розмовний підхід без зайвої води.'
+        };
+      }
+    }
+
+    function getPlanInfo(planId) {
+      if (planId === 'easy') return { name: 'Легкий (15 хв/день)', mult: 1 };
+      if (planId === 'hard') return { name: 'Тяжкий (60+ хв/день)', mult: 1.5 };
+      return { name: 'Середній (30 хв/день)', mult: 1.2 };
+    }
+
+    function getTimelineInfo(tId) {
+      if (tId === '3m') return { label: '3 місяці', words: '35 слів/день', lessons: '4 уроки/день' };
+      if (tId === '1y') return { label: '1 рік', words: '12 слів/день', lessons: '2 уроки/день' };
+      if (tId === '2y') return { label: '2 роки', words: '7 слів/день', lessons: '1 урок/день' };
+      return { label: '6 місяців', words: '20 слів/день', lessons: '3 уроки/день' };
+    }
+
+    let toastTimer = null;
+    function showToast(title, msg) {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-title').textContent = title;
+      document.getElementById('toast-msg').textContent = msg;
+      el.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    // =========================================================================
+    // 5. ОНБОРДИНГ (НАЛАШТУВАННЯ ПРОФІЛЮ)
+    // =========================================================================
+    function updateAgePreview() {
+      const ageVal = document.getElementById('input-age').value;
+      const info = getAgeInfo(ageVal);
+      document.getElementById('age-group-badge').textContent = `${info.emoji} ${info.group}`;
+      document.getElementById('age-method-desc').textContent = info.method;
+    }
+
+    function renderOnboardingLanguages() {
+      const query = document.getElementById('lang-search-input').value.toLowerCase();
+      const grid = document.getElementById('onboarding-lang-grid');
+      const filtered = LANGUAGES.filter(l =>
+        l.name.toLowerCase().includes(query) || l.native.toLowerCase().includes(query)
+      );
+
+      grid.innerHTML = filtered.map(lang => `
+        <div class="lang-chip ${lang.id === state.langId ? 'active' : ''}" onclick="selectOnboardingLang('${lang.id}')">
+          <span class="flag">${lang.flag}</span>
+          <div>
+            <div class="name">${lang.name}</div>
+            <div class="native">${lang.native}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectOnboardingLang(id) {
+      state.langId = id;
+      const lang = getLang();
+      document.getElementById('selected-lang-preview').textContent = `${lang.flag} ${lang.name}`;
+      renderOnboardingLanguages();
+    }
+
+    function selectPlan(planId) {
+      state.plan = planId;
+      document.querySelectorAll('#plan-cards .select-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.plan === planId);
+      });
+    }
+
+    function selectTimeline(tId) {
+      state.timeline = tId;
+      document.querySelectorAll('#timeline-cards .select-card').forEach(card => {
+        card.classList.toggle('amber-active', card.dataset.time === tId);
+      });
+    }
+
+    function openOnboarding() {
+      document.getElementById('input-nickname').value = state.nickname;
+      document.getElementById('input-age').value = state.age;
+      updateAgePreview();
+      renderOnboardingLanguages();
+      document.getElementById('onboarding-modal').style.display = 'flex';
+    }
+
+    function saveProfileAndStart() {
+      const nick = document.getElementById('input-nickname').value.trim();
+      const age = parseInt(document.getElementById('input-age').value, 10);
+      state.nickname = nick || 'Поліглот_5+';
+      state.age = (age >= 5 && age <= 99) ? age : 16;
+
+      document.getElementById('onboarding-modal').style.display = 'none';
+      renderAll();
+      showToast(`Профіль збережено! ${getAgeInfo(state.age).emoji}`, `Вивчаємо ${getLang().flag} ${getLang().name} на 5+!`);
+    }
+
+    // =========================================================================
+    // 6. РЕНДЕР ІНТЕРФЕЙСУ ТА ВКЛАДОК
+    // =========================================================================
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabName);
+      });
+      document.querySelectorAll('.tab-section').forEach(sec => {
+        sec.classList.toggle('active', sec.id === `tab-${tabName}`);
+      });
+
+      if (tabName === 'tests') initQuiz();
+      if (tabName === 'ai') renderAiChat();
+      if (tabName === 'shop') renderShop();
+    }
+
+    function renderAll() {
+      const lang = getLang();
+      const ageInfo = getAgeInfo(state.age);
+      const planInfo = getPlanInfo(state.plan);
+      const timeInfo = getTimelineInfo(state.timeline);
+
+      // Header
+      const level = Math.floor(state.xp / 100) + 1;
+      const xpInLevel = state.xp % 100;
+      document.getElementById('header-level').textContent = level;
+      document.getElementById('header-xp-bar').style.width = `${xpInLevel}%`;
+      document.getElementById('header-xp-text').textContent = `${xpInLevel}/100 XP`;
+      document.getElementById('header-lei').textContent = state.lei;
+      document.getElementById('header-nick').textContent = state.nickname;
+      document.getElementById('header-lang-display').textContent = `${lang.flag} ${lang.name} • Ціль носія: ${timeInfo.label}`;
+
+      // VIP & Реклама
+      document.getElementById('header-vip-badge').style.display = state.adFree ? 'flex' : 'none';
+      document.getElementById('ad-banner').style.display = state.adFree ? 'none' : 'block';
+
+      // Hero картка
+      document.getElementById('hero-age-tag').textContent = `${ageInfo.emoji} Вікова адаптація: ${ageInfo.group}`;
+      document.getElementById('hero-greeting').textContent = `Привіт, ${state.nickname}! Вивчаємо ${lang.flag} ${lang.name}`;
+      document.getElementById('hero-method-text').textContent = ageInfo.method;
+      document.getElementById('hero-plan-badge').textContent = `📋 План: ${planInfo.name}`;
+      document.getElementById('hero-time-badge').textContent = `⏳ До рівня носія: ${timeInfo.label} (${timeInfo.words})`;
+      document.getElementById('hero-daily-badge').textContent = `🎯 Норма: ${timeInfo.lessons}`;
+
+      document.getElementById('hero-phrase-native').textContent = lang.hello;
+      document.getElementById('hero-phrase-trans').textContent = `Вимова: [${lang.helloPron}] — «Привіт! Як справи?»`;
+
+      // Рендер рівнів та уроків
+      renderLevels();
+      renderShop();
+    }
+
+    function renderLevels() {
+      const lang = getLang();
+      const mult = getPlanInfo(state.plan).mult;
+      const container = document.getElementById('levels-container');
+
+      container.innerHTML = LEVELS_STRUCTURE.map(lvl => `
+        <div class="level-block">
+          <div class="level-header">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="level-tag">${lvl.code}</span>
+                <h3 style="font-size: 18px; font-weight: 900;">${lvl.title}</h3>
+              </div>
+              <p style="font-size: 13px; color: var(--muted); margin-top: 4px;">${lvl.desc}</p>
+            </div>
+            <span style="font-size: 12px; font-weight: 700; color: var(--muted);">${lang.flag} ${lang.name}</span>
+          </div>
+
+          <div class="lessons-grid">
+            ${lvl.lessons.map(les => {
+              const isDone = state.completedLessons.includes(les.id);
+              const finalXp = Math.round(les.xp * mult);
+              return `
+                <div class="lesson-card ${isDone ? 'done' : ''}">
+                  <div>
+                    <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px;">
+                      ${isDone ? '✅' : '📘'} ${les.title}
+                    </div>
+                    <div style="font-size: 12px; color: var(--muted); font-weight: 700;">
+                      <span style="color: var(--primary);">+${finalXp} XP</span> • <span style="color: #d97706;">+${les.lei} Леїв 🪙</span>
+                    </div>
+                  </div>
+                  <button class="btn ${isDone ? 'btn-success' : 'btn-primary'}" style="padding: 9px 14px; font-size: 12px;" onclick="openLesson('${lvl.id}', '${les.id}')">
+                    ${isDone ? 'Повторити' : 'Вчити'}
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // =========================================================================
+    // 7. ІНТЕРАКТИВНИЙ УРОК (МОДАЛЬНЕ ВІКНО)
+    // =========================================================================
+    function openLesson(lvlId, lesId) {
+      const lvl = LEVELS_STRUCTURE.find(l => l.id === lvlId);
+      const les = lvl.lessons.find(l => l.id === lesId);
+      const lang = getLang();
+      const mult = getPlanInfo(state.plan).mult;
+      const finalXp = Math.round(les.xp * mult);
+
+      state.activeLesson = { ...les, finalXp };
+
+      document.getElementById('lesson-modal-badge').textContent = `${lvl.code} • ${lang.flag} ${lang.name}`;
+      document.getElementById('lesson-modal-title').textContent = les.title;
+      document.getElementById('lesson-complete-btn').textContent = `Завершити урок (+${finalXp} XP, +${les.lei} Леїв) 🎉`;
+
+      let cardsHtml = '';
+      if (les.type === 'hello') {
+        cardsHtml = makePhraseCard('Привіт! Як справи?', lang.hello, lang.helloPron);
+      } else if (les.type === 'thanks') {
+        cardsHtml = makePhraseCard('Дуже дякую за допомогу!', lang.thanks, lang.thanksPron);
+      } else if (les.type === 'water') {
+        cardsHtml = makePhraseCard('Вода (базове слово)', lang.water, lang.waterPron);
+      } else if (les.type === 'cost') {
+        cardsHtml = makePhraseCard('Скільки це коштує?', lang.cost, lang.costPron);
+      } else if (les.type === 'grammar') {
+        cardsHtml = `
+          <div style="background: #eef2ff; border: 1px solid #c7d2fe; padding: 16px; border-radius: 16px;">
+            <div style="font-weight: 800; color: var(--primary); margin-bottom: 6px;">🧠 Ключове правило мови ${lang.name}:</div>
+            <div style="font-size: 14px; line-height: 1.5;">${lang.grammar}</div>
+          </div>
+        `;
+      } else if (les.type === 'love') {
+        cardsHtml = makePhraseCard('Я люблю вивчати мови', lang.love, lang.lovePron);
+      } else {
+        cardsHtml =
+          makePhraseCard('Привітання носія', lang.hello, lang.helloPron) +
+          makePhraseCard('Подяка носія', lang.thanks, lang.thanksPron) +
+          makePhraseCard('Запитання ціни', lang.cost, lang.costPron);
+      }
+
+      document.getElementById('lesson-modal-content').innerHTML = cardsHtml;
+      document.getElementById('lesson-modal').style.display = 'flex';
+    }
+
+    function makePhraseCard(ua, nativeText, pron) {
+      return `
+        <div style="background: #f8fafc; border: 1px solid var(--border); padding: 16px; border-radius: 16px;">
+          <div style="font-size: 12px; color: var(--muted); font-weight: 700;">Українською: ${ua}</div>
+          <div style="font-size: 20px; font-weight: 900; color: var(--text); margin: 6px 0;">${nativeText}</div>
+          <div style="font-size: 13px; color: var(--primary); font-weight: 700;">🗣️ Вимова: [${pron}]</div>
+        </div>
+      `;
+    }
+
+    function closeLessonModal() {
+      document.getElementById('lesson-modal').style.display = 'none';
+      state.activeLesson = null;
+    }
+
+    function completeCurrentLesson() {
+      if (!state.activeLesson) return;
+      const { id, title, finalXp, lei } = state.activeLesson;
+      const oldLevel = Math.floor(state.xp / 100) + 1;
+
+      state.xp += finalXp;
+      state.lei += lei;
+      if (!state.completedLessons.includes(id)) {
+        state.completedLessons.push(id);
+      }
+
+      const newLevel = Math.floor(state.xp / 100) + 1;
+      if (newLevel > oldLevel) {
+        state.lei += 30;
+        showToast(`НОВИЙ РІВЕНЬ ${newLevel}! 🏆`, `Бонус за підвищення рівня: +30 Леїв! Усього зароблено: +${lei + 30} Леїв.`);
+      } else {
+        showToast(`Урок завершено! 🎉`, `${title}: нараховано +${finalXp} XP та +${lei} Леїв!`);
+      }
+
+      closeLessonModal();
+      renderAll();
+    }
+
+    // =========================================================================
+    // 8. ТЕСТИ ДЛЯ ПЕРЕВІРКИ ЗНАНЬ (5 ПИТАНЬ)
+    // =========================================================================
+    function initQuiz() {
+      const lang = getLang();
+      const level = document.getElementById('quiz-level-select').value;
+      document.getElementById('quiz-header-title').textContent = `🏆 Тест знань: ${lang.flag} ${lang.name}`;
+
+      // Беремо 3 інші випадкові мови для дистракторів
+      const others = LANGUAGES.filter(l => l.id !== lang.id).sort(() => 0.5 - Math.random());
+      const d1 = others[0], d2 = others[1], d3 = others[2];
+
+      state.quizQuestions = [
+        {
+          q: `1. Як привітатися мовою "${lang.name}" (${lang.native})?`,
+          options: shuffle([lang.hello, d1.hello, d2.hello, d3.hello]),
+          correct: lang.hello
+        },
+        {
+          q: `2. Як перекладається слово «Вода» мовою ${lang.name}?`,
+          options: shuffle([lang.water, d1.water, d2.water, d3.water]),
+          correct: lang.water
+        },
+        {
+          q: `3. Як подякувати («Дякую за допомогу!») мовою ${lang.name}?`,
+          options: shuffle([lang.thanks, d1.thanks, d2.thanks, d3.thanks]),
+          correct: lang.thanks
+        },
+        {
+          q: `4. Ви в магазині. Як запитати «Скільки це коштує?» (${lang.name})?`,
+          options: shuffle([lang.cost, d1.cost, d2.cost, d3.cost]),
+          correct: lang.cost
+        },
+        {
+          q: level === 'hard'
+            ? `5. Рівень носія: Оберіть автентичну фразу «Я люблю вивчати мови» (${lang.native}):`
+            : `5. Як сказати «Я люблю вивчати мови» мовою ${lang.name}?`,
+          options: shuffle([lang.love, d1.love, d2.love, d3.love]),
+          correct: lang.love
+        }
+      ];
+
+      state.quizIndex = 0;
+      state.quizScore = 0;
+      state.quizAnswered = false;
+      renderQuizQuestion();
+    }
+
+    function shuffle(arr) {
+      return [...arr].sort(() => 0.5 - Math.random());
+    }
+
+    function renderQuizQuestion() {
+      const body = document.getElementById('quiz-body');
+      if (state.quizIndex >= state.quizQuestions.length) {
+        const level = document.getElementById('quiz-level-select').value;
+        const baseLei = level === 'easy' ? 25 : level === 'medium' ? 40 : 60;
+        const earnedLei = Math.max(10, Math.round((state.quizScore / 5) * baseLei));
+        const earnedXp = state.quizScore * 12 + 10;
+
+        state.xp += earnedXp;
+        state.lei += earnedLei;
+        renderAll();
+        showToast('Тест пройдено! 🏆', `Ваш результат: ${state.quizScore}/5. Нараховано +${earnedXp} XP та +${earnedLei} Леїв!`);
+
+        body.innerHTML = `
+          <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 52px; margin-bottom: 10px;">🎉</div>
+            <h3 style="font-size: 24px; font-weight: 900;">Результат: ${state.quizScore} з 5 правильних!</h3>
+            <p style="color: var(--muted); font-size: 14px; margin: 8px 0 20px;">
+              Ви заробили <strong style="color: var(--primary);">+${earnedXp} XP</strong> та <strong style="color: #d97706;">+${earnedLei} Леїв 🪙</strong>!
+            </p>
+            <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+              <button class="btn btn-primary" onclick="initQuiz()">🔄 Пройти тест ще раз</button>
+              <button class="btn btn-amber" onclick="switchTab('shop')">🛍️ Витратити Леї</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const item = state.quizQuestions[state.quizIndex];
+      body.innerHTML = `
+        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 12px;">
+          <span>Питання ${state.quizIndex + 1} із 5</span>
+          <span>Балів: ${state.quizScore}</span>
+        </div>
+        <div style="font-size: 18px; font-weight: 900; margin-bottom: 18px;">${item.q}</div>
+        <div id="quiz-options-wrap">
+          ${item.options.map((opt, idx) => `
+            <button class="quiz-option" id="qopt-${idx}" onclick="answerQuiz(${idx})">${opt}</button>
+          `).join('')}
+        </div>
+        <div id="quiz-next-wrap" style="margin-top: 14px; text-align: right; display: none;">
+          <button class="btn btn-primary" onclick="nextQuizQuestion()">Наступне питання →</button>
+        </div>
+      `;
+    }
+
+    function answerQuiz(idx) {
+      if (state.quizAnswered) return;
+      state.quizAnswered = true;
+      const item = state.quizQuestions[state.quizIndex];
+      const chosen = item.options[idx];
+
+      item.options.forEach((opt, i) => {
+        const btn = document.getElementById(`qopt-${i}`);
+        btn.disabled = true;
+        if (opt === item.correct) btn.classList.add('correct');
+        else if (i === idx) btn.classList.add('wrong');
+      });
+
+      if (chosen === item.correct) {
+        state.quizScore++;
+      }
+      document.getElementById('quiz-next-wrap').style.display = 'block';
+    }
+
+    function nextQuizQuestion() {
+      state.quizIndex++;
+      state.quizAnswered = false;
+      renderQuizQuestion();
+    }
+
+    // =========================================================================
+    // 9. AI-РЕПЕТИТОР (ЧАТ + РОЗУМНИЙ ПЕРЕКЛАДАЧ НА 52 МОВИ)
+    // =========================================================================
+    function renderAiChat() {
+      const lang = getLang();
+      document.getElementById('ai-subtitle').textContent = `Активна мова: ${lang.flag} ${lang.name} • Розуміє всі 52 мови`;
+
+      const prompts = [
+        `Як буде іспанською "дякую за допомогу"?`,
+        `Дай 5 базових фраз (${lang.name})`,
+        `Поясни граматику (${lang.name})`,
+        `Як сказати "Скільки це коштує?" (${lang.name})`
+      ];
+
+      document.getElementById('ai-quick-prompts').innerHTML = prompts.map(p => `
+        <button class="quick-chip" onclick="sendAiPrompt('${p.replace(/"/g, '&quot;')}')">${p}</button>
+      `).join('');
+
+      const msgBox = document.getElementById('ai-messages');
+      msgBox.innerHTML = state.chatHistory.map(m => `
+        <div class="msg ${m.sender}">${m.text}</div>
+      `).join('');
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+
+    function sendAiPrompt(text) {
+      document.getElementById('ai-input').value = text;
+      handleAiSubmit(new Event('submit'));
+    }
+
+    function handleAiSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('ai-input');
+      const query = input.value.trim();
+      if (!query) return;
+
+      state.chatHistory.push({ sender: 'user', text: query });
+      input.value = '';
+      renderAiChat();
+
+      setTimeout(() => {
+        const reply = generateAiResponse(query);
+        state.chatHistory.push({ sender: 'ai', text: reply });
+        renderAiChat();
+      }, 300);
+    }
+
+    function generateAiResponse(query) {
+      const q = query.toLowerCase();
+      // Визначаємо, чи вказав користувач конкретну мову в запиті
+      let targetLang = getLang();
+      for (const l of LANGUAGES) {
+        const stem = l.name.toLowerCase().slice(0, 5);
+        if (q.includes(stem) || q.includes(l.native.toLowerCase())) {
+          targetLang = l;
+          break;
+        }
+      }
+
+      if (q.includes('5 базових') || q.includes('базові фрази')) {
+        return `Ось 5 найважливіших фраз мовою ${targetLang.flag} ${targetLang.name} (${targetLang.native}):\n\n` +
+          `1️⃣ Привіт! Як справи? → ${targetLang.hello} [${targetLang.helloPron}]\n` +
+          `2️⃣ Дякую за допомогу! → ${targetLang.thanks} [${targetLang.thanksPron}]\n` +
+          `3️⃣ Скільки це коштує? → ${targetLang.cost} [${targetLang.costPron}]\n` +
+          `4️⃣ Вода → ${targetLang.water} [${targetLang.waterPron}]\n` +
+          `5️⃣ Я люблю вивчати мови → ${targetLang.love} [${targetLang.lovePron}]`;
+      }
+
+      if (q.includes('граматик')) {
+        return `📘 Граматична підказка для мови ${targetLang.flag} ${targetLang.name}:\n\n${targetLang.grammar}\n\n💡 Порада для віку ${state.age} р.: практикуйте це правило на коротких діалогах щодня!`;
+      }
+
+      if (q.includes('дякую') || q.includes('спасибі')) {
+        return `Мовою ${targetLang.flag} ${targetLang.name} «Дякую за допомогу» буде:\n\n🗣️ ${targetLang.thanks}\n🔊 Вимова: [${targetLang.thanksPron}]`;
+      }
+
+      if (q.includes('скільки') || q.includes('коштує') || q.includes('ціна')) {
+        return `Мовою ${targetLang.flag} ${targetLang.name} «Скільки це коштує?» звучить так:\n\n🗣️ ${targetLang.cost}\n🔊 Вимова: [${targetLang.costPron}]`;
+      }
+
+      if (q.includes('привіт') || q.includes('віта')) {
+        return `Привітання мовою ${targetLang.flag} ${targetLang.name}:\n\n🗣️ ${targetLang.hello}\n🔊 Вимова: [${targetLang.helloPron}]`;
+      }
+
+      if (q.includes('вода') || q.includes('води')) {
+        return `Слово «Вода» мовою ${targetLang.flag} ${targetLang.name}:\n\n💧 ${targetLang.water}\n🔊 Вимова: [${targetLang.waterPron}]`;
+      }
+
+      return `Ось розбір для мови ${targetLang.flag} ${targetLang.name} (${targetLang.native}):\n\n` +
+        `• Привітання: ${targetLang.hello} [${targetLang.helloPron}]\n` +
+        `• Подяка: ${targetLang.thanks} [${targetLang.thanksPron}]\n` +
+        `• Порада: ${targetLang.grammar}\n\n` +
+        `Натисніть «Дай 5 базових фраз», щоб отримати повний розмовник цієї мови!`;
+    }
+
+    // =========================================================================
+    // 10. МАГАЗИН ЗА ВАЛЮТУ "ЛЕЇ" (ВІДКЛЮЧЕННЯ РЕКЛАМИ)
+    // =========================================================================
+    function renderShop() {
+      document.getElementById('shop-lei-balance').textContent = state.lei;
+      const grid = document.getElementById('shop-grid');
+
+      grid.innerHTML = SHOP_ITEMS.map(item => {
+        const isOwned = item.type === 'adfree' && state.adFree && state.adFreeLabel === item.label;
+        return `
+          <div class="shop-card">
+            <div>
+              <span style="font-size: 11px; font-weight: 800; background: #fef3c7; color: #b45309; padding: 4px 10px; border-radius: 99px;">
+                ${item.badge}
+              </span>
+              <h3 style="font-size: 18px; font-weight: 900; margin-top: 10px;">${item.title}</h3>
+              <p style="font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.5;">${item.desc}</p>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--border);">
+              <span style="font-size: 18px; font-weight: 900; color: #d97706;">🪙 ${item.price} Леїв</span>
+              <button class="btn ${isOwned ? 'btn-success' : 'btn-primary'}" ${isOwned ? 'disabled' : ''} onclick="buyShopItem('${item.id}')">
+                ${isOwned ? '✓ Активовано' : 'Купити'}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function buyShopItem(itemId) {
+      const item = SHOP_ITEMS.find(i => i.id === itemId);
+      if (!item) return;
+
+      if (state.lei < item.price) {
+        showToast('Недостатньо Леїв 🪙', `Вам бракує ${item.price - state.lei} Леїв. Пройдіть урок або тест, щоб заробити більше!`);
+        return;
+      }
+
+      state.lei -= item.price;
+      if (item.type === 'adfree') {
+        state.adFree = true;
+        state.adFreeLabel = item.label;
+        showToast('Підписку активовано! 👑', `Рекламу повністю вимкнено (${item.label}). Дякуємо за навчання!`);
+      } else if (item.type === 'xp') {
+        state.xp += item.amount;
+        showToast('Бустер XP активовано! ⚡', `Ви отримали +${item.amount} XP!`);
+      }
+
+      renderAll();
+    }
+
+    // =========================================================================
+    // 11. ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ СТОРІНКИ
+    // =========================================================================
+    window.onload = function () {
+      updateAgePreview();
+      renderOnboardingLanguages();
+      renderAll();
+    };
+  </script>
+</body>
+</html>
